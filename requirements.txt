@@ -1,0 +1,24 @@
+#ASR+LLM依赖
+
+fastapi
+uvicorn
+python-multipart
+# torch>=1.7.0  # 已注释，请手动安装CUDA版本
+# torchaudio    # 已注释，请手动安装CUDA版本
+numpy
+funasr>=0.9.6
+websockets
+modelscope
+onnxruntime
+datasets
+peft
+py7zr
+
+#屏幕点击工具依赖
+openai
+pillow
+pyautogui
+
+#RAG依赖
+sentence-transformers
+watchdog

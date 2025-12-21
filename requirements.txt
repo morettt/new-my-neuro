@@ -22,3 +22,6 @@ pyautogui
 #RAG依赖
 sentence-transformers
 watchdog
+
+#打包exe
+PyQt5

@@ -1,12 +1,25 @@
-## 前期准备
 
-#### 确保你有
-
-#### 1.conda 环境
-#### 2.node.js环境
-
+### 确保有 conda 环境、node.js环境
 
 ### 开始部署
+
+
+```bash
+conda create -n my-neuro python=3.11 -y
+
+conda activate my-neuro
+
+
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
+
+conda install ffmpeg -y
+
+python full-hub/Batch_Download.py
+
+```
+
 
 接着直接在本路径运行
 ```bash
@@ -18,24 +31,15 @@ npm install
 进行依赖的安装
 
 
-#### 关于皮套的获取，点击这个链接，会自动下载zip文件：https://github.com/morettt/my-neuro/releases/download/fake-neuro/default.zip
+#### 关于皮套的获取，点击这个自动下载：[下载皮套](https://github.com/morettt/my-neuro/releases/download/fake-neuro/default.zip)
 
 #### 这是live-2d皮套，下载好后请放到2D文件夹解压
 
 
 #### 打包exe文件
 
-创建虚拟环境：
-
 ```bash
-conda create -n pyqt python=3.10 -y
-conda activate pyqt
-
-pip install PyQt5
-
-#在当前路径下运行这个指令打包exe
-pyinstaller --onefile --windowed --icon=fake_neuro.ico test.py
-
+双击：一键打包QT.bat
 ```
 
 打包好以后，会生成一个 dist文件夹

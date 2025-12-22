@@ -10,6 +10,7 @@ class LLMClient {
         this.apiKey = config.llm.api_key;
         this.apiUrl = config.llm.api_url;
         this.model = config.llm.model;
+        this.temperature = config.llm.temperature || 1.0;  // 🔥 读取temperature配置，默认1.0
     }
 
     /**
@@ -17,22 +18,24 @@ class LLMClient {
      * @param {Array} messages - 消息数组
      * @param {Array} tools - 可选的工具列表
      * @param {boolean} stream - 是否使用流式响应
+     * @param {Function} onChunk - 流式响应时的回调函数，接收每个文本块
      * @returns {Promise<Object>} API响应的消息对象
      */
-    async chatCompletion(messages, tools = null, stream = false) {
+    async chatCompletion(messages, tools = null, stream = false, onChunk = null) {
         // 🔥 清理消息格式,确保API兼容性
         const cleanedMessages = this._cleanMessagesForAPI(messages);
 
         const requestBody = {
             model: this.model,
             messages: cleanedMessages,
+            temperature: this.temperature,  // 🔥 添加temperature参数
             stream: stream
         };
 
         // 添加工具列表(如果提供)
         if (tools && tools.length > 0) {
             requestBody.tools = tools;
-            logToTerminal('info', `🔧 发送工具列表到LLM: ${tools.length}个工具`);
+//            logToTerminal('info', `🔧 发送工具列表到LLM: ${tools.length}个工具`);
         } else {
             logToTerminal('warn', `⚠️ 未发送工具列表到LLM (tools=${tools ? 'empty array' : 'null'})`);
         }
@@ -48,13 +51,15 @@ class LLMClient {
             const stats = {
                 messagesCount: requestBody.messages.length,
                 toolsCount: requestBody.tools?.length || 0,
-                requestSize: testJson.length
+                requestSize: testJson.length,
+                temperature: requestBody.temperature  // 🔥 添加temperature到统计信息
             };
-            console.log('📤 API请求统计:', stats);
+//            logToTerminal('info', `📤 API请求统计: ${JSON.stringify(stats)}`);
+//            logToTerminal('info', `🌡️ Temperature参数: ${requestBody.temperature}`);  // 🔥 明确打印temperature
 
             // 如果请求过大,警告
             if (stats.requestSize > 50000) {
-                logToTerminal('warn', `⚠️ 请求体过大 (${Math.round(stats.requestSize/1024)}KB)，可能导致API错误`);
+//                logToTerminal('warn', `⚠️ 请求体过大 (${Math.round(stats.requestSize/1024)}KB)，可能导致API错误`);
             }
         } catch (jsonError) {
             logToTerminal('error', `❌ 请求体JSON格式错误: ${jsonError.message}`);
@@ -76,6 +81,12 @@ class LLMClient {
                 await handleAPIError(response);
             }
 
+            // 🔥 流式响应处理
+            if (stream && onChunk) {
+                return await this._handleStreamResponse(response, onChunk);
+            }
+
+            // 非流式响应处理
             const responseData = await response.json();
 
             // 验证响应格式
@@ -306,6 +317,110 @@ class LLMClient {
     }
 
     /**
+     * 处理流式响应
+     * @private
+     * @param {Response} response - Fetch响应对象
+     * @param {Function} onChunk - 接收每个文本块的回调函数
+     * @returns {Promise<Object>} 完整的消息对象
+     */
+    async _handleStreamResponse(response, onChunk) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+
+        let buffer = '';
+        let fullContent = '';
+        let toolCalls = null;
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                // 解码数据块
+                buffer += decoder.decode(value, { stream: true });
+
+                // 处理SSE格式的数据（data: {...}\n\n）
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || ''; // 保留不完整的行
+
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed || trimmed === 'data: [DONE]') continue;
+
+                    if (trimmed.startsWith('data: ')) {
+                        try {
+                            const jsonStr = trimmed.slice(6); // 移除 "data: " 前缀
+                            const chunk = JSON.parse(jsonStr);
+
+                            // 提取内容
+                            const delta = chunk.choices?.[0]?.delta;
+                            if (!delta) continue;
+
+                            // 处理文本内容
+                            if (delta.content) {
+                                fullContent += delta.content;
+                                onChunk(delta.content); // 🔥 实时回调
+                            }
+
+                            // 处理工具调用
+                            if (delta.tool_calls) {
+                                if (!toolCalls) toolCalls = [];
+                                // 累积工具调用信息
+                                for (const toolCall of delta.tool_calls) {
+                                    const index = toolCall.index || 0;
+                                    if (!toolCalls[index]) {
+                                        toolCalls[index] = {
+                                            id: toolCall.id || '',
+                                            type: 'function',
+                                            function: { name: '', arguments: '' }
+                                        };
+                                    }
+                                    if (toolCall.id) toolCalls[index].id = toolCall.id;
+                                    if (toolCall.function?.name) toolCalls[index].function.name = toolCall.function.name;
+                                    if (toolCall.function?.arguments) toolCalls[index].function.arguments += toolCall.function.arguments;
+                                }
+                            }
+                        } catch (parseError) {
+                            // 忽略解析错误，继续处理下一行
+                            logToTerminal('warn', `⚠️ 流式数据解析失败: ${parseError.message}`);
+                        }
+                    }
+                }
+            }
+
+//            logToTerminal('info', `✅ 流式响应接收完成`);
+
+            // 构建完整的消息对象
+            const message = {
+                role: 'assistant',
+                content: fullContent || null
+            };
+
+            if (toolCalls && toolCalls.length > 0) {
+                message.tool_calls = toolCalls;
+            }
+
+            // 🔥 解析 Qwen 模型的文本格式工具调用
+            if (message.content && !message.tool_calls) {
+                const parsedToolCalls = this._parseQwenToolCalls(message.content);
+                if (parsedToolCalls && parsedToolCalls.length > 0) {
+                    logToTerminal('info', `🔧 AI调用了 ${parsedToolCalls.length} 个工具`);
+                    message.tool_calls = parsedToolCalls;
+                    message.content = this._removeToolCallsFromContent(message.content);
+                }
+            }
+
+            return message;
+
+        } catch (error) {
+            logToTerminal('error', `流式响应处理错误: ${error.message}`);
+            throw error;
+        } finally {
+            reader.releaseLock();
+        }
+    }
+
+    /**
      * 更新API配置
      * @param {Object} newConfig - 新的配置对象
      */
@@ -314,6 +429,7 @@ class LLMClient {
             this.apiKey = newConfig.llm.api_key || this.apiKey;
             this.apiUrl = newConfig.llm.api_url || this.apiUrl;
             this.model = newConfig.llm.model || this.model;
+            this.temperature = newConfig.llm.temperature !== undefined ? newConfig.llm.temperature : this.temperature;  // 🔥 支持temperature更新
             logToTerminal('info', 'LLM客户端配置已更新');
         }
     }

@@ -83,6 +83,7 @@ class LLMHandler {
                 const maxIterations = 30; // 最大工具调用轮数,防止无限循环
                 let iteration = 0;
                 let finalResponseContent = null;
+                let isStreamingToTTS = false; // 标记是否正在流式播放TTS
 
                 // 🔥 清除之前的中断标志，开始新的对话流程
                 appState.clearInterrupted();
@@ -162,8 +163,11 @@ class LLMHandler {
                         } else {
                             console.log('📸 主模型将处理截图（需要主模型支持视觉）');
                         }
-                        // 正常使用主模型
-                        result = await llmClient.chatCompletion(messagesForAPI, allTools);
+
+                        // 🔥 正常使用主模型 - 使用流式响应（提升响应速度）
+                        result = await llmClient.chatCompletion(messagesForAPI, allTools, true, (text) => {
+                            // 流式接收文本，暂不播放TTS（等确认是否有工具调用后再决定）
+                        });
                     }
 
                     // 检查是否有工具调用
@@ -193,8 +197,11 @@ class LLMHandler {
                             console.log(`💬 AI中间过程: ${result.content}`);
                             logToTerminal('info', `💬 AI中间过程: ${result.content}`);
 
-                            // 播放TTS并等待真正的播放完成(监听TTS_END事件)
-                            ttsProcessor.reset();
+                            // 🔥 中间过程播放TTS（工具调用的中间内容）
+                            if (iteration === 0) {
+                                // 第一轮才reset
+                                ttsProcessor.reset();
+                            }
                             ttsProcessor.processTextToSpeech(result.content);
 
                             // 等待TTS_END或TTS_INTERRUPTED事件触发
@@ -541,6 +548,12 @@ class LLMHandler {
                     // 没有工具调用,说明AI已经完成任务
                     if (result.content) {
                         finalResponseContent = result.content;
+
+                        // 🔥 最终回复：使用流式TTS播放
+                        console.log('✅ 最终回复，开始流式TTS播放');
+                        ttsProcessor.reset();
+                        ttsProcessor.processTextToSpeech(finalResponseContent);
+
                         // 只有真正执行了工具调用才输出统计信息
                         if (iteration > 0) {
                         }
@@ -555,12 +568,18 @@ class LLMHandler {
                 // 检查是否达到最大轮数限制
                 if (iteration >= maxIterations) {
                     logToTerminal('warn', `⚠️ 已达到最大工具调用次数限制 (${maxIterations} 轮)`);
-                    // 尝试获取最终回复
-                    const lastResult = await llmClient.chatCompletion(voiceChat.messages, []);
+                    // 🔥 尝试获取最终回复 - 使用非流式
+                    const lastResult = await llmClient.chatCompletion(voiceChat.messages, [], false);
+
                     if (lastResult.content) {
                         finalResponseContent = lastResult.content;
+                        // 播放TTS
+                        ttsProcessor.reset();
+                        ttsProcessor.processTextToSpeech(finalResponseContent);
                     } else {
                         finalResponseContent = "抱歉,任务太复杂了,我已经尽力了~";
+                        ttsProcessor.reset();
+                        ttsProcessor.processTextToSpeech(finalResponseContent);
                     }
                 }
 
@@ -571,13 +590,8 @@ class LLMHandler {
                     // ===== 保存对话历史 =====
                     voiceChat.saveConversationHistory();
 
-                    // 🎙️ 播放最终回复的TTS(不用reset,让它接续播放)
-                    // logToTerminal('info', `🎙️ 开始语音输出最终回复`);  // 已删除：无实际价值
-                    if (iteration === 0) {
-                        // 如果没有中间过程,才reset
-                        ttsProcessor.reset();
-                    }
-                    ttsProcessor.processTextToSpeech(finalResponseContent);
+                    // 🔥 TTS已经在上面的break之前播放过了，这里不需要再次播放
+                    console.log('✅ 最终回复已处理完成');
                 } else {
                     logToTerminal('error', '❌ 未获取到有效的AI回复');
                     throw new Error("未获取到有效的AI回复");

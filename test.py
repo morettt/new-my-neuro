@@ -2499,6 +2499,7 @@ class set_pyqt(QWidget):
         self.ui.lineEdit_2.setText(self.config['llm']['api_url'])
         self.ui.lineEdit_3.setText(self.config['llm']['model'])
         self.ui.textEdit_3.setPlainText(self.config['llm']['system_prompt'])
+        self.ui.doubleSpinBox_temperature.setValue(self.config['llm'].get('temperature', 1.0))
         self.ui.lineEdit_4.setText(self.config['ui']['intro_text'])
         self.ui.lineEdit_5.setText(str(self.config['context']['max_messages']))
         self.ui.lineEdit_idle_time.setText(str(self.config['auto_chat']['idle_time']))
@@ -2881,6 +2882,7 @@ class set_pyqt(QWidget):
             "api_key": self.ui.lineEdit.text(),
             "api_url": self.ui.lineEdit_2.text(),
             "model": self.ui.lineEdit_3.text(),
+            "temperature": self.ui.doubleSpinBox_temperature.value(),
             "system_prompt": self.ui.textEdit_3.toPlainText()
         }
 

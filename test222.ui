@@ -1401,17 +1401,11 @@ QTabWidget#tabWidget_tools QTabBar {
                 </layout>
                </item>
                <item>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <property name="horizontalSpacing">
-                  <number>6</number>
-                 </property>
-                 <property name="verticalSpacing">
-                  <number>10</number>
-                 </property>
-                 <item row="0" column="0">
+                <layout class="QVBoxLayout" name="verticalLayout_all">
+                 <item>
                   <widget class="QCheckBox" name="checkBox_3">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -1427,8 +1421,8 @@ QTabWidget#tabWidget_tools QTabBar {
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1">
-                  <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,2,10">
+                 <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,2,10">
                    <property name="spacing">
                     <number>10</number>
                    </property>
@@ -1494,10 +1488,10 @@ QTabWidget#tabWidget_tools QTabBar {
                    </item>
                   </layout>
                  </item>
-                 <item row="1" column="0">
+                 <item>
                   <widget class="QCheckBox" name="checkBox_asr">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -1513,10 +1507,10 @@ QTabWidget#tabWidget_tools QTabBar {
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
+                 <item>
                   <widget class="QCheckBox" name="checkBox_4">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -1532,10 +1526,10 @@ QTabWidget#tabWidget_tools QTabBar {
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
+                 <item>
                   <widget class="QCheckBox" name="checkBox_tts">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -1551,26 +1545,26 @@ QTabWidget#tabWidget_tools QTabBar {
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
+                 <item>
                   <widget class="QCheckBox" name="checkBox_persistent_history">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>微软雅黑</family>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>启用对话历史记忆（重启后保留之前的对话）</string>
-                   </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>微软雅黑</family>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>启用对话历史记忆（重启后保留之前的对话）</string>
+                      </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
+                 <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,2,10">
                    <property name="spacing">
                     <number>10</number>
@@ -1645,7 +1639,74 @@ QTabWidget#tabWidget_tools QTabBar {
                    </item>
                   </layout>
                  </item>
-                 <item row="4" column="0">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_temperature">
+                   <item>
+                    <widget class="QLabel" name="label_temperature">
+                     <property name="font">
+                      <font>
+                       <family>微软雅黑</family>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>温度：</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_temperature">
+                     <property name="minimumSize">
+                      <size>
+                       <width>100</width>
+                       <height>35</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>120</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <family>微软雅黑</family>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="buttonSymbols">
+                      <enum>QAbstractSpinBox::UpDownArrows</enum>
+                     </property>
+                     <property name="minimum">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>2.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_temperature">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
                   <widget class="QPushButton" name="pushButton_reset_model_position">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1688,20 +1749,20 @@ QPushButton:pressed {
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <spacer name="verticalSpacer_basic_config">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
                 </layout>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_basic_config">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
                </item>
               </layout>
              </widget>

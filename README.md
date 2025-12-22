@@ -20,6 +20,7 @@ python full-hub/Batch_Download.py
 
 ```
 
+## 部署AI核心环境
 
 ```bash
 # 接着直接在本路径运行

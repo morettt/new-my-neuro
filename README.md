@@ -21,9 +21,12 @@ python full-hub/Batch_Download.py
 ```
 
 
-接着直接在本路径运行
 ```bash
+# 接着直接在本路径运行
+npm install
 
+#接着去mcp路径运行
+cd mcp
 npm install
 
 ```

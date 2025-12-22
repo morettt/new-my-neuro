@@ -5,15 +5,15 @@
 ## 具体操作
 
 
-首先请先fork 这个项目。这里因为我没法自己fork自己的项目，所以找一个别的项目做示范，看图片操作。点击+Create a new fork
+#### 首先请先fork 这个项目。这里因为我没法自己fork自己的项目，所以找一个别的项目做示范，看图片操作。点击+Create a new fork
 
 <img width="1893" height="561" alt="image" src="https://github.com/user-attachments/assets/9085d494-3dcd-4ed5-90a0-77997474ee28" />
 
 
-接着点击：create fork
+#### 继续点击：create fork
 <img width="1286" height="925" alt="image" src="https://github.com/user-attachments/assets/b424ee28-6043-448a-b363-d3b2c3e3b17a" />
 
-这样你的仓库下面就有了项目仓库了
+#### 这样你的仓库下面就有了项目仓库了
 <img width="1871" height="1074" alt="image" src="https://github.com/user-attachments/assets/06ebb0b9-ea38-4c14-bf9f-0fedaeac68d3" />
 
 
@@ -30,16 +30,17 @@
 ### 先创建分支
 
 ```bash
-# 具体分支名可以自己取，例如修Bug可以取名：fix/bug  添加新功能可以：feature/add-new-feature 直接易懂就行 下面是示例
+# 具体分支名可以自己取，例如修Bug可以取名：fix/bug  添加新功能可以：feature/add-new-feature 简单易懂就行 下面是示例
 git checkout -b 你的分支名字
 
 ```
 
-## 修改代码
+### 修改项目代码
 
-分支搞好以后就可以改代码了
+这一步就可以添加文件或者修改代码等等操作了
 
-## 添加到暂存区
+
+### 添加到暂存区
 
 ```bash
 git add .
@@ -74,6 +75,7 @@ git push origin 你的分支名字
 
 
 ## 恭喜你！接下来就可以等待维护者，也就是我来审查你的提交。如果测试都没有问题就可以合并了。然后就可以成为项目的贡献者了！
+
 
 
 

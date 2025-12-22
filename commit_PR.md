@@ -4,4 +4,135 @@
 
 ## 具体操作
 
-首先请先fork 这个项目。点击这个
+
+首先请先fork 这个项目。这里因为我没法自己fork自己的项目，所以找一个别的项目做示范，看图片操作。点击+Create a new fork
+
+<img width="1893" height="561" alt="image" src="https://github.com/user-attachments/assets/9085d494-3dcd-4ed5-90a0-77997474ee28" />
+
+
+接着点击：create fork
+<img width="1286" height="925" alt="image" src="https://github.com/user-attachments/assets/b424ee28-6043-448a-b363-d3b2c3e3b17a" />
+
+这样你的仓库下面就有了项目仓库了
+<img width="1871" height="1074" alt="image" src="https://github.com/user-attachments/assets/06ebb0b9-ea38-4c14-bf9f-0fedaeac68d3" />
+
+
+### 接下来将你fork的项目克隆到本地
+
+```bash
+
+1.找一个空文件夹打开终端
+2.git clone https://github.com/你的github用户名/new-my-neuro.git
+3.cd new-my-neuro
+
+```
+
+### 先创建分支
+
+```bash
+# 具体分支名可以自己取，例如修Bug可以取名：fix/bug  添加新功能可以：feature/add-new-feature 直接易懂就行 下面是示例
+git checkout -b 你的分支名字
+
+```
+
+## 修改代码
+
+分支搞好以后就可以改代码了
+
+## 添加到暂存区
+
+```bash
+git add .
+```
+
+## 提交
+```bash
+git commit -m "描述你做了什么"
+
+```
+
+## 推送你的修改
+
+```bash
+git push origin 你的分支名字
+```
+
+
+### 然后来到你的fork的仓库这里，会发现多了一个黄不拉几的提示 这个就代表你成功把修改操作提交到了你fork的仓库中，直接点击这个compare pull request
+
+
+<img width="2182" height="1009" alt="image" src="https://github.com/user-attachments/assets/5eb74627-dfbf-4331-a11c-f72ddf8fb2d5" />
+
+
+## 来到了这里后，在红框里面可以写具体做了什么，写好后点击那个 create pull request 
+
+<img width="1951" height="1072" alt="image" src="https://github.com/user-attachments/assets/e8f20914-e619-4e14-b0d7-636120e07707" />
+
+## 这样成功的提交pr了
+
+<img width="2206" height="1275" alt="image" src="https://github.com/user-attachments/assets/3aab4e54-e071-4c5a-8971-e55ce3f4304c" />
+
+
+## 恭喜你！接下来就可以等待维护者，也就是我来审查你的提交。如果测试都没有问题就可以合并了。然后就可以成为项目的贡献者了！
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

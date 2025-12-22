@@ -25,6 +25,7 @@ full-hub/tts-hub
 # 忽略可执行文件
 *.exe
 *.zip
+*.log
 
 #忽略无意义文件
 

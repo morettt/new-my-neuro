@@ -47,3 +47,6 @@ dist文件夹里会有一个 test.exe 的文件，请把它拖到develop路径�
 
 最后双击:肥牛.exe 配置api配置即可对话
 
+
+# [PR提交指南](./commit_PR.md)
+

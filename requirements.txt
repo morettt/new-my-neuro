@@ -25,3 +25,5 @@ watchdog
 
 #打包exe
 PyQt5
+requests
+pyinstaller

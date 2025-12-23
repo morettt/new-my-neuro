@@ -13,8 +13,8 @@ from urllib3.util.retry import Retry
 # 禁用SSL警告
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# 获取当前工作目录
-current_dir = os.getcwd()
+# 获取脚本所在目录（full-hub 目录）
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # 设置最大重试次数
 MAX_RETRY = 3
@@ -245,28 +245,84 @@ def download_with_retry(command, max_retry=MAX_RETRY, wait_time=RETRY_WAIT):
     return False
 
 
+# 添加Live2D下载函数
+def download_live2d_model():
+    """下载并解压Live 2D模型到live-2d文件夹"""
+    print("\n========== 下载Live 2D模型 ==========")
+
+    target_folder = "live-2d"
+
+    # 如果live-2d文件夹存在，先清空文件夹内容
+    if os.path.exists(target_folder):
+        print(f"检测到 {target_folder} 文件夹已存在，正在清空内容...")
+        for item in os.listdir(target_folder):
+            item_path = os.path.join(target_folder, item)
+            if os.path.isfile(item_path) or os.path.islink(item_path):
+                os.unlink(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+        print(f"{target_folder} 文件夹内容已清空")
+
+    url = "https://github.com/morettt/new-my-neuro/releases/download/v5.9.5/live-2d.zip"
+    file_name = url.split('/')[-1]
+
+    # 下载文件
+    downloaded_file = download_file(url, file_name)
+
+    # 解压文件
+    extract_success = extract_zip(downloaded_file, target_folder)
+
+    # 清理：删除压缩文件
+    if extract_success and os.path.exists(downloaded_file):
+        os.remove(downloaded_file)
+        print(f"原压缩文件 {downloaded_file} 已删除")
+
+    return extract_success
+
+
+# 开始下载Live2D模型
+print("开始下载Live2D模型...")
+download_live2d_model()
+
+
 # 1. 下载Omni_fn_bert模型到bert-hub文件夹
+print("\n========== 检查Omni_fn_bert模型 ==========")
+
 bert_hub_dir = os.path.join(current_dir, "bert-hub")
 if not os.path.exists(bert_hub_dir):
     os.makedirs(bert_hub_dir)
 
-# 切换到bert-hub目录
-os.chdir(bert_hub_dir)
-print(f"下载Omni_fn_bert模型到: {os.getcwd()}")
-
-# 使用ModelScope下载Omni_fn_bert模型，带重试机制
-if not download_with_retry("modelscope download --model morelle/Omni_fn_bert --local_dir ./"):
-    print("Omni_fn_bert模型下载失败，终止程序")
-    exit(1)
-
-# 检查下载的模型是否存在 - ModelScope直接下载到指定目录
-# 检查一些关键文件是否存在来确认模型是否下载成功
+# 检查Omni_fn_bert模型关键文件
 omni_model_files = ["config.json", "model.safetensors", "vocab.txt"]
-missing_files = [f for f in omni_model_files if not os.path.exists(os.path.join(bert_hub_dir, f))]
-if missing_files:
-    print(f"错误：下载后无法找到Omni_fn_bert模型的关键文件: {', '.join(missing_files)}")
-    exit(1)
-print("Omni_fn_bert模型检查通过，关键文件已找到")
+omni_key_files = [os.path.join(bert_hub_dir, f) for f in omni_model_files]
+print(f"检查路径: {bert_hub_dir}")
+print(f"检查文件: {omni_key_files}")
+omni_already_downloaded = all(os.path.exists(f) for f in omni_key_files)
+print(f"文件存在状态: {[os.path.exists(f) for f in omni_key_files]}")
+
+if omni_already_downloaded:
+    print("检测到Omni_fn_bert模型已经下载完成，跳过下载步骤")
+else:
+    print(f"Omni_fn_bert模型未完整下载，开始下载到: {bert_hub_dir}")
+
+    # 切换到bert-hub目录
+    os.chdir(bert_hub_dir)
+
+    # 使用ModelScope下载Omni_fn_bert模型，带重试机制
+    if not download_with_retry("modelscope download --model morelle/Omni_fn_bert --local_dir ./"):
+        print("Omni_fn_bert模型下载失败，终止程序")
+        exit(1)
+
+    # 检查下载的模型是否存在 - ModelScope直接下载到指定目录
+    # 检查一些关键文件是否存在来确认模型是否下载成功
+    missing_files = [f for f in omni_model_files if not os.path.exists(os.path.join(bert_hub_dir, f))]
+    if missing_files:
+        print(f"错误：下载后无法找到Omni_fn_bert模型的关键文件: {', '.join(missing_files)}")
+        exit(1)
+    print("Omni_fn_bert模型下载成功！")
+
+# 返回到原始目录
+os.chdir(current_dir)
 
 # 2. 下载TTS模型包 (gsv-fn-v1) 到tts-hub文件夹
 # 返回到原始目录

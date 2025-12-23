@@ -38,13 +38,15 @@ class HttpServer {
             let jsCode = '';
             switch (action) {
                 case 'play_random':
-                    jsCode = 'global.musicPlayer && global.musicPlayer.playRandomMusic(); "播放随机音乐"';
+                    // 直接返回 playRandomMusic 的结果 (Promise)
+                    jsCode = 'global.musicPlayer ? global.musicPlayer.playRandomMusic() : { message: "播放器未初始化", metadata: null }';
                     break;
                 case 'stop':
-                    jsCode = 'global.musicPlayer && global.musicPlayer.stop(); "音乐已停止"';
+                    jsCode = 'global.musicPlayer ? global.musicPlayer.stop() : null; "音乐已停止"';
                     break;
                 case 'play_specific':
-                    jsCode = `global.musicPlayer && global.musicPlayer.playSpecificSong('${filename}'); "播放${filename}"`;
+                    // 直接返回 playSpecificSong 的结果 (Promise)
+                    jsCode = `global.musicPlayer ? global.musicPlayer.playSpecificSong('${filename}') : { message: "播放器未初始化", metadata: null }`;
                     break;
                 default:
                     return res.json({ success: false, message: '不支持的操作' });
@@ -136,82 +138,6 @@ class HttpServer {
                 } else {
                     "配置重新加载函数未找到";
                 }
-            `;
-
-            mainWindow.webContents.executeJavaScript(jsCode)
-                .then(result => res.json({ success: true, message: result }))
-                .catch(error => res.json({ success: false, message: error.toString() }));
-        });
-
-        // 模型位置重置接口
-        this.emotionApp.post('/reset-model-position', (req, res) => {
-            const mainWindow = BrowserWindow.getAllWindows()[0];
-
-            if (!mainWindow) {
-                return res.json({ success: false, message: '应用窗口未找到' });
-            }
-
-            // 调用前端的模型位置重置函数
-            const jsCode = `
-                (async () => {
-                    try {
-                        // 重新加载配置
-                        const { ipcRenderer } = require('electron');
-                        const result = await ipcRenderer.invoke('get-config');
-
-                        if (result.success && result.config) {
-                            const config = result.config;
-                            const defaultX = config.ui?.model_position?.x || 1.35;
-                            const defaultY = config.ui?.model_position?.y || 0.8;
-
-                            // 重新设置模型位置
-                            if (global.modelController && global.modelController.model) {
-                                global.modelController.model.x = defaultX * window.innerWidth;
-                                global.modelController.model.y = defaultY * window.innerHeight;
-                                global.modelController.updateInteractionArea();
-                                return "模型位置已重置";
-                            } else {
-                                return "模型控制器未初始化";
-                            }
-                        } else {
-                            return "获取配置失败";
-                        }
-                    } catch (error) {
-                        return "重置失败: " + error.message;
-                    }
-                })()
-            `;
-
-            mainWindow.webContents.executeJavaScript(jsCode)
-                .then(result => res.json({ success: true, message: result }))
-                .catch(error => res.json({ success: false, message: error.toString() }));
-        });
-
-        // 模型切换接口
-        this.emotionApp.post('/switch-model', (req, res) => {
-            const { model_name } = req.body;
-            const mainWindow = BrowserWindow.getAllWindows()[0];
-
-            if (!mainWindow) {
-                return res.json({ success: false, message: '应用窗口未找到' });
-            }
-
-            if (!model_name) {
-                return res.json({ success: false, message: '缺少model_name参数' });
-            }
-
-            // 调用IPC更新模型
-            const jsCode = `
-                (async () => {
-                    try {
-                        const { ipcRenderer } = require('electron');
-                        // 发送切换模型请求
-                        const result = await ipcRenderer.invoke('switch-live2d-model', '${model_name}');
-                        return result.message || "模型切换成功";
-                    } catch (error) {
-                        return "切换失败: " + error.message;
-                    }
-                })()
             `;
 
             mainWindow.webContents.executeJavaScript(jsCode)

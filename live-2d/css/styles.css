@@ -203,6 +203,70 @@ body {
     }
 }
 
+/* 歌词气泡容器 */
+#lyrics-bubble-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    display: none;
+    pointer-events: none;
+    transition: none;
+}
+
+/* 歌词气泡文本 - 区分于普通气泡 */
+#lyrics-bubble-text {
+    position: relative;
+    display: inline-block;
+    min-width: 160px;
+    max-width: 320px;
+    padding: 16px 24px;
+
+    background: linear-gradient(145deg, #e8f3ff 0%, #cfe5ff 100%);
+    border: 2.5px solid #90caf9;
+    border-radius: 24px;
+    box-shadow:
+        0 8px 22px rgba(33, 150, 243, 0.2),
+        0 2px 8px rgba(33, 150, 243, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1565c0;
+    line-height: 1.55;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: pre-line;
+
+    pointer-events: none;
+    animation: lyrics-bubble-float 2.6s ease-in-out infinite;
+}
+
+/* 歌词气泡尾巴 */
+#lyrics-bubble-text::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 40px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 10px 0 0;
+    border-color: #90caf9 transparent transparent transparent;
+    filter: drop-shadow(1px 2px 3px rgba(33, 150, 243, 0.14));
+}
+
+/* 歌词漂浮动画 - 稍慢一些 */
+@keyframes lyrics-bubble-float {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(-8px) scale(1.01);
+    }
+}
+
 /* 工具调用气泡框堆叠容器 */
 #tool-bubbles-container {
     position: fixed;

@@ -8,7 +8,6 @@ const { ModelSetup } = require('./model/model-setup.js');
 const { BarrageManager } = require('./live/barrage-manager.js');
 const { LiveStreamModule } = require('./live/LiveStreamModule.js');
 const { AutoChatModule } = require('./live/auto-chat.js');
-const { MoodChatModule } = require('./ai/MoodChatModule.js');
 const { IPCHandlers } = require('./ipc-handlers.js');
 const { LLMHandler } = require('./ai/llm-handler.js');
 const { logToTerminal } = require('./api-utils.js');
@@ -32,7 +31,6 @@ class AppInitializer {
         this.barrageManager = null;
         this.liveStreamModule = null;
         this.autoChatModule = null;
-        this.moodChatModule = null;
         this.ipcHandlers = null;
 
         // 配置标志
@@ -88,8 +86,7 @@ class AppInitializer {
                 localToolManager: this.localToolManager,
                 barrageManager: this.barrageManager,
                 liveStreamModule: this.liveStreamModule,
-                autoChatModule: this.autoChatModule,
-                moodChatModule: this.moodChatModule
+                autoChatModule: this.autoChatModule
             };
         } catch (error) {
             console.error("应用初始化错误:", error);
@@ -159,6 +156,10 @@ class AppInitializer {
         global.hideBubble = () => this.uiController.hideBubble();
         global.toggleBubble = () => this.uiController.toggleBubble();
         global.showToolBubble = (toolName, parameters) => this.uiController.showToolBubble(toolName, parameters);
+
+        // 为歌词气泡提供全局函数
+        global.showLyricsBubble = (text) => this.uiController.showLyricsBubble(text);
+        global.hideLyricsBubble = () => this.uiController.hideLyricsBubble();
     }
 
     // 第三阶段: 创建语音聊天接口
@@ -318,13 +319,6 @@ class AppInitializer {
             // console.log('自动对话模块初始化完成');  // 不显示技术日志
             // logToTerminal('info', '自动对话模块初始化完成');
         }, 8000);
-
-        // 心情对话模块初始化（延迟1秒，确保voiceChat已初始化）
-        setTimeout(() => {
-            this.moodChatModule = new MoodChatModule(this.config);
-            global.moodChatModule = this.moodChatModule;
-            this.moodChatModule.start();
-        }, 1000);
     }
 
     // 第十阶段: 初始化聊天界面和IPC

@@ -549,10 +549,8 @@ class LLMHandler {
                     if (result.content) {
                         finalResponseContent = result.content;
 
-                        // 🔥 最终回复：使用流式TTS播放
-                        console.log('✅ 最终回复，开始流式TTS播放');
-                        ttsProcessor.reset();
-                        ttsProcessor.processTextToSpeech(finalResponseContent);
+                        // 🔥 不在这里播放TTS，统一在最后播放（参考旧版本的设计）
+                        console.log('✅ 最终回复已获取');
 
                         // 只有真正执行了工具调用才输出统计信息
                         if (iteration > 0) {
@@ -573,14 +571,10 @@ class LLMHandler {
 
                     if (lastResult.content) {
                         finalResponseContent = lastResult.content;
-                        // 播放TTS
-                        ttsProcessor.reset();
-                        ttsProcessor.processTextToSpeech(finalResponseContent);
                     } else {
                         finalResponseContent = "抱歉,任务太复杂了,我已经尽力了~";
-                        ttsProcessor.reset();
-                        ttsProcessor.processTextToSpeech(finalResponseContent);
                     }
+                    // 🔥 不在这里播放TTS，统一在最后播放
                 }
 
                 // 输出最终回复
@@ -590,8 +584,13 @@ class LLMHandler {
                     // ===== 保存对话历史 =====
                     voiceChat.saveConversationHistory();
 
-                    // 🔥 TTS已经在上面的break之前播放过了，这里不需要再次播放
-                    console.log('✅ 最终回复已处理完成');
+                    // 🎙️ 播放最终回复的TTS（统一在这里播放，参考旧版本的设计）
+                    console.log('✅ 最终回复已处理完成，开始播放TTS');
+                    if (iteration === 0) {
+                        // 如果没有中间过程,才reset
+                        ttsProcessor.reset();
+                    }
+                    ttsProcessor.processTextToSpeech(finalResponseContent);
                 } else {
                     logToTerminal('error', '❌ 未获取到有效的AI回复');
                     throw new Error("未获取到有效的AI回复");

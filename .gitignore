@@ -3,11 +3,11 @@
 
 
 # 忽略特定文件夹
-2D/*
-AI记录室/*
-build/
-fake_neuro_audio/
-node/
+live-2d/2D/*
+live-2d/AI记录室/*
+live-2d/build/
+live-2d/fake_neuro_audio/
+live-2d/node/
 song-library/
 full-hub/7z
 full-hub/asr-hub
@@ -29,3 +29,5 @@ full-hub/tts-hub
 #忽略无意义文件
 
 runtime.logfull-hub/ 
+
+

@@ -25,3 +25,7 @@ full-hub/tts-hub
 *.exe
 *.zip
 *.log
+
+#忽略无意义文件
+
+runtime.logfull-hub/ 

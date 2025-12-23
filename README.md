@@ -20,6 +20,8 @@ python full-hub/Batch_Download.py
 
 ```
 
+### 进入full-hub文件夹找到这几个脚本：ASR.bat TTS.bat bert.bat 直接鼠标双击。会输出各自的IP端口
+
 ## 2.前端部署
 
 ```bash

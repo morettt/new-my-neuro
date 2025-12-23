@@ -23,10 +23,11 @@ python full-hub/Batch_Download.py
 ## 2.部署AI核心环境
 
 ```bash
-# 接着直接在本路径运行
+# 接着进入live-2d文件夹
+cd live-2d
 npm install
 
-#接着去mcp路径运行
+#然后去mcp路径运行
 cd mcp
 npm install
 

@@ -175,8 +175,8 @@ class UIController {
 
             // 更新工具气泡堆叠容器位置 (身体下方)
             if (toolBubblesContainer) {
-                const toolOffsetX = 300;   // 向右偏移
-                const toolOffsetY = 500;   // 向下大幅偏移,定位到身体/下方
+                const toolOffsetX = 100;   // 向右偏移
+                const toolOffsetY = 230;   // 向下大幅偏移,定位到身体/下方
                 const toolTargetX = screenX + toolOffsetX;
                 const toolTargetY = screenY + toolOffsetY;
 
@@ -191,6 +191,27 @@ class UIController {
 
                 toolBubblesContainer.style.left = `${this.toolBubblesCurrentX}px`;
                 toolBubblesContainer.style.top = `${this.toolBubblesCurrentY}px`;
+            }
+
+            // 更新歌词气泡位置 (身体左侧或上方)
+            const lyricsBubbleContainer = document.getElementById('lyrics-bubble-container');
+            if (this.lyricsBubbleVisible && lyricsBubbleContainer) {
+                const lyricsOffsetX = -20;  // 再向右移 (原-150)
+                const lyricsOffsetY = -20;  // 再向下移 (原-100)
+                const lyricsTargetX = screenX + lyricsOffsetX;
+                const lyricsTargetY = screenY + lyricsOffsetY;
+
+                if (!this._lyricsBubbleInitialized) {
+                    this.lyricsBubbleCurrentX = lyricsTargetX;
+                    this.lyricsBubbleCurrentY = lyricsTargetY;
+                    this._lyricsBubbleInitialized = true;
+                } else {
+                    this.lyricsBubbleCurrentX += (lyricsTargetX - this.lyricsBubbleCurrentX) * smoothFactor;
+                    this.lyricsBubbleCurrentY += (lyricsTargetY - this.lyricsBubbleCurrentY) * smoothFactor;
+                }
+
+                lyricsBubbleContainer.style.left = `${this.lyricsBubbleCurrentX}px`;
+                lyricsBubbleContainer.style.top = `${this.lyricsBubbleCurrentY}px`;
             }
 
         } catch (error) {
@@ -310,6 +331,24 @@ class UIController {
         }, 5000);
     }
 
+    // 设置聊天框可见性
+    setupChatBoxVisibility(ttsEnabled, asrEnabled) {
+        const textChatContainer = document.getElementById('text-chat-container');
+        if (!textChatContainer) return false;
+
+        // 如果开启了TTS和ASR，默认隐藏聊天框（语音交互模式）
+        // 如果禁用了TTS或ASR，默认显示聊天框（文本交互模式）
+        const shouldShow = !(ttsEnabled && asrEnabled);
+
+        if (shouldShow) {
+            textChatContainer.style.display = 'block';
+        } else {
+            textChatContainer.style.display = 'none';
+        }
+
+        return shouldShow;
+    }
+
     // 设置聊天框消息发送
     setupChatInput(voiceChat) {
         const chatInput = document.getElementById('chat-input');
@@ -336,36 +375,40 @@ class UIController {
         });
     }
 
-    // 设置聊天框显示状态
-    setupChatBoxVisibility(ttsEnabled, asrEnabled) {
-        const textChatContainer = document.getElementById('text-chat-container');
-        if (!textChatContainer) return;
+    // 显示歌词气泡
+    showLyricsBubble(text) {
+        const bubbleContainer = document.getElementById('lyrics-bubble-container');
+        const bubbleText = document.getElementById('lyrics-bubble-text');
 
-        // 根据配置设置对话框显示状态
-        const shouldShowChatBox = this.config.ui && this.config.ui.hasOwnProperty('show_chat_box')
-            ? this.config.ui.show_chat_box
-            : (!ttsEnabled || !asrEnabled);
+        if (!bubbleContainer || !bubbleText) return;
 
-        textChatContainer.style.display = shouldShowChatBox ? 'block' : 'none';
+        bubbleText.textContent = text;
+        bubbleContainer.style.display = 'block';
 
-        // 如果启用了text_only_mode或者TTS/ASR任一被禁用，自动显示聊天框
-        if ((this.config.ui && this.config.ui.text_only_mode) || !ttsEnabled || !asrEnabled) {
-            textChatContainer.style.display = 'block';
-            console.log('检测到纯文本模式或TTS/ASR禁用，自动显示聊天框');
+        // 启动位置追踪（复用现有的气泡位置逻辑，或者稍微偏移）
+        if (!this.bubbleUpdateInterval) {
+            this.startBubbleTracking();
         }
 
-        // Alt键切换聊天框
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Alt') {
-                e.preventDefault();
-                const chatContainer = document.getElementById('text-chat-container');
-                if (chatContainer) {
-                    chatContainer.style.display = chatContainer.style.display === 'none' ? 'block' : 'none';
-                }
-            }
-        });
+        // 标记歌词气泡可见，以便 updateBubblePosition 更新它的位置
+        this.lyricsBubbleVisible = true;
+        this.updateBubblePosition();
+    }
 
-        return shouldShowChatBox;
+    // 隐藏歌词气泡
+    hideLyricsBubble() {
+        const bubbleContainer = document.getElementById('lyrics-bubble-container');
+        if (bubbleContainer) {
+            bubbleContainer.style.display = 'none';
+        }
+        this.lyricsBubbleVisible = false;
+
+        // 如果没有其他气泡显示，停止追踪
+        if (!this.bubbleVisible && !this.lyricsBubbleVisible) {
+            // 注意：这里不能直接停止，因为可能还有工具气泡。
+            // 简单起见，只要有任何气泡显示，就保持追踪。
+            // 现有的 stopBubbleTracking 逻辑可能需要调整，或者我们暂时保持它运行。
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 
-### 确保有 conda 环境、node.js环境
+### 确保有 conda 环境
 
 ### 1.后端部署
 
@@ -21,6 +21,8 @@ python full-hub/Batch_Download.py
 ```
 
 ### 进入full-hub文件夹找到这几个脚本：ASR.bat TTS.bat bert.bat 直接鼠标双击。会输出各自的IP端口
+
+### 接着打开live-2d文件夹，找到：肥牛.exe 启动配置API即可对话
 
 
 # [PR提交指南](./commit_PR.md)

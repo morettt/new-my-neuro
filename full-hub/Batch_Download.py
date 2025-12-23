@@ -278,39 +278,54 @@ if not os.path.exists(tts_hub_dir):
     os.makedirs(tts_hub_dir)
     print(f"创建目录: {tts_hub_dir}")
 
-print("\n========== 下载TTS模型包 ==========")
-print(f"下载gsv-fn-v1模型包到tts-hub文件夹: {tts_hub_dir}")
+print("\n========== 检查TTS模型包 ==========")
 
-# 使用ModelScope下载gsv-fn-v1模型包到tts-hub文件夹，带重试机制
-if not download_with_retry(f"modelscope download --model morelle/gsv-fn-v1 --local_dir ./tts-hub"):
-    print("gsv-fn-v1模型包下载失败，终止程序")
-    exit(1)
+# 检查TTS模型包是否已经解压完成
+# 验证关键文件/文件夹是否存在
+tts_bundle_dir = os.path.join(tts_hub_dir, "GPT-SoVITS-Bundle")
+tts_key_files = [
+    os.path.join(tts_bundle_dir, "runtime"),
+    os.path.join(tts_bundle_dir, "GPT_SoVITS"),
+]
 
-print("gsv-fn-v1模型包下载成功！")
+tts_already_extracted = all(os.path.exists(f) for f in tts_key_files)
 
-# 检查是否存在 GPT-SoVITS-Bundle.7z 文件（在tts-hub文件夹中）
-bundle_7z_file = os.path.join(tts_hub_dir, "GPT-SoVITS-Bundle.7z")
-if os.path.exists(bundle_7z_file):
-    print(f"\n检测到 GPT-SoVITS-Bundle.7z 文件，开始解压...")
-
-    # 解压到tts-hub目录
-    if extract_7z(bundle_7z_file, tts_hub_dir):
-        print("TTS模型包解压成功！")
-
-        # 删除压缩包
-        try:
-            os.remove(bundle_7z_file)
-            print(f"已删除原压缩文件: {bundle_7z_file}")
-        except Exception as e:
-            print(f"删除压缩文件时出错: {e}")
-    else:
-        print("TTS模型包解压失败，请手动解压 GPT-SoVITS-Bundle.7z 文件")
-        exit(1)
+if tts_already_extracted:
+    print("检测到TTS模型包已经解压完成，跳过下载和解压步骤")
 else:
-    print(f"警告: 未找到 GPT-SoVITS-Bundle.7z 文件，跳过解压步骤")
+    print(f"TTS模型包未完整解压，开始下载...")
+    print(f"下载gsv-fn-v1模型包到tts-hub文件夹: {tts_hub_dir}")
+
+    # 使用ModelScope下载gsv-fn-v1模型包到tts-hub文件夹，带重试机制
+    if not download_with_retry(f"modelscope download --model morelle/gsv-fn-v1 --local_dir ./tts-hub"):
+        print("gsv-fn-v1模型包下载失败，终止程序")
+        exit(1)
+
+    print("gsv-fn-v1模型包下载成功！")
+
+    # 检查是否存在 GPT-SoVITS-Bundle.7z 文件（在tts-hub文件夹中）
+    bundle_7z_file = os.path.join(tts_hub_dir, "GPT-SoVITS-Bundle.7z")
+    if os.path.exists(bundle_7z_file):
+        print(f"\n检测到 GPT-SoVITS-Bundle.7z 文件，开始解压...")
+
+        # 解压到tts-hub目录
+        if extract_7z(bundle_7z_file, tts_hub_dir):
+            print("TTS模型包解压成功！")
+
+            # 删除压缩包
+            try:
+                os.remove(bundle_7z_file)
+                print(f"已删除原压缩文件: {bundle_7z_file}")
+            except Exception as e:
+                print(f"删除压缩文件时出错: {e}")
+        else:
+            print("TTS模型包解压失败，请手动解压 GPT-SoVITS-Bundle.7z 文件")
+            exit(1)
+    else:
+        print(f"警告: 未找到 GPT-SoVITS-Bundle.7z 文件，跳过解压步骤")
 
 # 7. 下载BAAI/bge-m3模型到rag-hub文件夹
-print("\n开始下载BAAI/bge-m3模型...")
+print("\n========== 检查BAAI/bge-m3模型 ==========")
 
 # 返回到原始目录
 os.chdir(current_dir)
@@ -321,14 +336,25 @@ if not os.path.exists(rag_hub_dir):
     os.makedirs(rag_hub_dir)
     print(f"创建目录: {rag_hub_dir}")
 
-print(f"下载BAAI/bge-m3模型到: {rag_hub_dir}")
+# 检查BAAI/bge-m3模型关键文件
+bge_key_files = [
+    os.path.join(rag_hub_dir, "config.json"),
+    os.path.join(rag_hub_dir, "model.safetensors"),
+    os.path.join(rag_hub_dir, "tokenizer.json")
+]
+bge_already_downloaded = all(os.path.exists(f) for f in bge_key_files)
 
-# 使用ModelScope下载BAAI/bge-m3模型，带重试机制
-if not download_with_retry("modelscope download --model BAAI/bge-m3 --local_dir ./rag-hub"):
-    print("BAAI/bge-m3模型下载失败")
-    # 不终止程序，继续执行其他任务
+if bge_already_downloaded:
+    print("检测到BAAI/bge-m3模型已经下载完成，跳过下载步骤")
 else:
-    print("BAAI/bge-m3模型下载成功！")
+    print(f"BAAI/bge-m3模型未完整下载，开始下载到: {rag_hub_dir}")
+
+    # 使用ModelScope下载BAAI/bge-m3模型，带重试机制
+    if not download_with_retry("modelscope download --model BAAI/bge-m3 --local_dir ./rag-hub"):
+        print("BAAI/bge-m3模型下载失败")
+        # 不终止程序，继续执行其他任务
+    else:
+        print("BAAI/bge-m3模型下载成功！")
 
 # 9. 下载ASR相关模型到asr-hub目录
 print("\n========== 开始下载ASR相关模型 ==========")
@@ -343,41 +369,72 @@ if not os.path.exists(asr_hub_dir):
     print(f"创建目录: {asr_hub_dir}")
 
 # 9.1 下载VAD模型
-print("\n下载VAD模型...")
+print("\n检查VAD模型...")
 vad_target_dir = os.path.join(asr_hub_dir, 'model', 'torch_hub')
 if not os.path.exists(vad_target_dir):
     os.makedirs(vad_target_dir)
     print(f"创建目录: {vad_target_dir}")
 
-if not download_with_retry(f"modelscope download --model morelle/my-neuro-vad --local_dir {vad_target_dir}"):
-    print("VAD模型下载失败")
+# 检查VAD模型关键文件
+vad_model_path = os.path.join(vad_target_dir, "snakers4_silero-vad_master")
+vad_already_downloaded = os.path.exists(vad_model_path)
+
+if vad_already_downloaded:
+    print("检测到VAD模型已经下载完成，跳过下载步骤")
 else:
-    print("VAD模型下载成功！")
+    print("VAD模型未下载，开始下载...")
+    if not download_with_retry(f"modelscope download --model morelle/my-neuro-vad --local_dir {vad_target_dir}"):
+        print("VAD模型下载失败")
+    else:
+        print("VAD模型下载成功！")
 
 # 9.2 下载ASR主模型
-print("\n下载ASR主模型...")
+print("\n检查ASR主模型...")
 asr_model_dir = os.path.join(asr_hub_dir, 'model', 'asr', 'models', 'iic', 'speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch')
 if not os.path.exists(asr_model_dir):
     os.makedirs(asr_model_dir)
     print(f"创建目录: {asr_model_dir}")
 
-if not download_with_retry(
-        f"modelscope download --model iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch --local_dir {asr_model_dir}"):
-    print("ASR主模型下载失败")
+# 检查ASR主模型关键文件
+asr_key_files = [
+    os.path.join(asr_model_dir, "config.yaml"),
+    os.path.join(asr_model_dir, "model.pb")
+]
+asr_already_downloaded = all(os.path.exists(f) for f in asr_key_files)
+
+if asr_already_downloaded:
+    print("检测到ASR主模型已经下载完成，跳过下载步骤")
 else:
-    print("ASR主模型下载成功！")
+    print("ASR主模型未完整下载，开始下载...")
+    if not download_with_retry(
+            f"modelscope download --model iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch --local_dir {asr_model_dir}"):
+        print("ASR主模型下载失败")
+    else:
+        print("ASR主模型下载成功！")
 
 # 9.3 下载标点符号模型
-print("\n下载标点符号模型...")
-punc_model_dir = os.path.join(asr_hub_dir, 'model', 'asr', 'models', 'iic', 'punc_ct-transformer_zh-cn-common-vocab272727-pytorch')
+print("\n检查标点符号模型...")
+# 注意：这里使用 iic/punc_ct-transformer_cn-en-common-vocab471067-large 以匹配 asr_api.py 中的 ct-punc 别名
+punc_model_dir = os.path.join(asr_hub_dir, 'model', 'asr', 'models', 'iic', 'punc_ct-transformer_cn-en-common-vocab471067-large')
 if not os.path.exists(punc_model_dir):
     os.makedirs(punc_model_dir)
     print(f"创建目录: {punc_model_dir}")
 
-if not download_with_retry(f"modelscope download --model iic/punc_ct-transformer_zh-cn-common-vocab272727-pytorch --local_dir {punc_model_dir}"):
-    print("标点符号模型下载失败")
+# 检查标点符号模型关键文件
+punc_key_files = [
+    os.path.join(punc_model_dir, "config.yaml"),
+    os.path.join(punc_model_dir, "model.pt")
+]
+punc_already_downloaded = all(os.path.exists(f) for f in punc_key_files)
+
+if punc_already_downloaded:
+    print("检测到标点符号模型已经下载完成，跳过下载步骤")
 else:
-    print("标点符号模型下载成功！")
+    print("标点符号模型未完整下载，开始下载...")
+    if not download_with_retry(f"modelscope download --model iic/punc_ct-transformer_cn-en-common-vocab471067-large --local_dir {punc_model_dir}"):
+        print("标点符号模型下载失败")
+    else:
+        print("标点符号模型下载成功！")
 
 print("\n所有下载操作全部完成！")
 

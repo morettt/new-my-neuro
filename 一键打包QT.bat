@@ -1,4 +1,4 @@
-call conda activate new-my-neuro
-pyinstaller --onefile --windowed --icon=fake_neuro.ico test.py
-
+call conda activate pyqt
+pyinstaller --onefile --windowed --icon=fake_neuro.ico --distpath . --name ∑ ≈£ test.py
+del ∑ ≈£.spec
 pause

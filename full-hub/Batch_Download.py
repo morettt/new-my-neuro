@@ -263,7 +263,7 @@ def download_live2d_model():
                 shutil.rmtree(item_path)
         print(f"{target_folder} 文件夹内容已清空")
 
-    url = "https://github.com/morettt/new-my-neuro/releases/download/v5.9.5/live-2d.zip"
+    url = "https://github.com/morettt/my-neuro/releases/download/v5.9.6/live-2d.zip"
     file_name = url.split('/')[-1]
 
     # 下载文件

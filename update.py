@@ -15,7 +15,7 @@ def now_version():
 
 
 def get_latest_release():
-    url = "https://api.github.com/repos/morettt/new-my-neuro/releases/latest"
+    url = "https://api.github.com/repos/morettt/my-neuro/releases/latest"
     try:
         # 发送 HTTP 请求
         response = requests.get(url, headers={"Accept": "application/vnd.github+json"})
@@ -158,7 +158,7 @@ def download_live2d_model():
 
     try:
         # 获取最新发布信息
-        api_url = "https://api.github.com/repos/morettt/new-my-neuro/releases/latest"
+        api_url = "https://api.github.com/repos/morettt/my-neuro/releases/latest"
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()

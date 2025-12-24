@@ -6,7 +6,7 @@
     ]
   },
   "random-acg-pic": {
-    "command": "B:\\object-over\\new-my-neuro\\live-2d\\node\\node.exe",
+    "command": "node",
     "args": [
       "./mcp/tools/random-acg-pic.js"
     ]

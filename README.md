@@ -25,9 +25,9 @@
 
 
 ```bash
-conda create -n new-my-neuro python=3.11 -y
+conda create -n my-neuro python=3.11 -y
 
-conda activate new-my-neuro
+conda activate my-neuro
 
 
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
